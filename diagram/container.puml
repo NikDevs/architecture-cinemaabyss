@@ -1,0 +1,26 @@
+@startuml
+!RELATIVE_INCLUDE="relative"
+!include puml_tmpl/C4_Container.puml
+
+Person(User, "Пользователь", "Пользователь КиноБездны [компьютеры, смарт тв, мобильные устройства]")
+System(Cinemaabyss, "Кинобездна", "Микросервисная архитектура")
+Container_Boundary(Cinemaabyss, "Кинобездна") {
+  Container(ProxyService, "Прокси-сервис", "Kong", "Проброс/балансировка запросов на монолит и микросервисы")
+  Container(Monolith, "Монолит", "Go", "Основной монолит системы")
+  Container(MoviesService, "Микросервис фильмов", "Go", "Операции с фильмами")
+  Container(EventsService, "Микросервис событий", "Go", "Публикация событий")
+  ContainerDb(Database, "База данных", "PostgreSQL")
+}
+System_Ext(RecommendSystem, "Внешняя рекомендательная система")
+
+Rel(User, ProxyService, "Вызовы API", "REST API")
+Rel(ProxyService, Monolith, "Вызовы API", "REST API")
+Rel(ProxyService, MoviesService, "Вызовы API", "REST API")
+Rel(ProxyService, EventsService, "Вызовы API", "REST API")
+Rel(Monolith, Database, "Чтение/запись данных")
+Rel(MoviesService, Database, "Чтение/запись данных")
+Rel(EventsService, Database, "Чтение/запись данных")
+
+Rel(Monolith, RecommendSystem, "Запрос рекомендаций", "Message Queue")
+
+@enduml
