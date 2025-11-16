@@ -1,0 +1,42 @@
+_format_version: "3.0"
+_transform: true
+
+upstreams:
+  - name: movies-upstream
+    targets:
+      - target: $MONOLITH_URL
+        weight: $MONOLITH_WEIGHT
+      - target: $MOVIES_SERVICE_URL
+        weight: $MOVIES_WEIGHT
+  - name: monolith-upstream
+    targets:
+      - target: $MONOLITH_URL
+  - name: events-upstream
+    targets:
+      - target: $EVENTS_SERVICE_URL
+
+services:
+  - name: monolith_service
+    host: monolith-upstream
+    routes:
+      - name: monolith_route
+        strip_path: false
+        paths:
+          - /health
+          - /api/users
+          - /api/payments
+          - /api/subscriptions
+  - name: movies_service
+    host: movies-upstream
+    routes:
+      - name: movies_route
+        strip_path: false
+        paths:
+          - /api/movies
+  - name: events_service
+    host: events-upstream
+    routes:
+      - name: events_route
+        strip_path: false
+        paths:
+          - /api/events
